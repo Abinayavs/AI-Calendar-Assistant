@@ -1,0 +1,14 @@
+# Python bytecode cache
+__pycache__/
+
+# Flask session folder
+flask_session/
+
+# Local environment variables
+.env
+
+# Google API credentials and tokens
+credentials.json
+token.pickle
+
+

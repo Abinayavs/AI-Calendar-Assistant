@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Calendar Assistant</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/static/style.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>🤖Calendar Assistant</h1>
+        <p>Schedule, update, or delete meetings smartly!</p>
+      </header>
+      <main class="chat-container" id="chat">
+        <div class="message assistant">🤖 Hi! I'm your Calendar Assistant. How can I help?</div>
+      </main>
+      <div class="input-container">
+        <input type="text" id="user-input" placeholder="Type a message..." />
+        <button onclick="sendMessage()">Send</button>
+      </div>
+    </div>
+
+    <script src="/static/script.js"></script>
+    <script>
+      document.getElementById("user-input").addEventListener("keypress", function (e) {
+        if (e.key === "Enter") {
+          sendMessage();
+        }
+      });
+
+      // Function to simulate loading and sending the message
+      function sendMessage() {
+        var userInput = document.getElementById("user-input").value.trim();
+        if (userInput === "") return;
+
+        // Display user's message in chat
+        addMessage(userInput, 'user');
+
+        // Clear the input field
+        document.getElementById("user-input").value = "";
+
+        // Show loader while waiting for response
+        var loaderMessage = createLoaderMessage();
+        document.getElementById("chat").appendChild(loaderMessage);
+
+        // Simulate network request to Flask backend (replace with your actual fetch call)
+        setTimeout(function () {
+          // Here you can replace this with an actual fetch call to your Flask server
+          fetch("/chat", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ message: userInput }),
+          })
+            .then(response => response.json())
+            .then(data => {
+              // Remove loader and add response
+              loaderMessage.remove();
+              addMessage(data.reply, 'assistant');
+            })
+            .catch(error => {
+              console.error('Error:', error);
+              loaderMessage.remove();
+              addMessage("Sorry, I couldn't process your request.", 'assistant');
+            });
+        }, 1000); // Simulate a delay for the loader
+      }
+
+      // Function to add messages to the chat
+      function addMessage(message, sender) {
+        var messageDiv = document.createElement('div');
+        messageDiv.classList.add('message');
+        messageDiv.classList.add(sender);
+        messageDiv.textContent = message;
+        document.getElementById('chat').appendChild(messageDiv);
+        document.getElementById('chat').scrollTop = document.getElementById('chat').scrollHeight;
+      }
+
+      // Function to create the loader message
+      function createLoaderMessage() {
+        var loaderDiv = document.createElement('div');
+        loaderDiv.classList.add('message', 'assistant');
+        loaderDiv.textContent = "⏳ Waiting for response... Please wait.";
+        return loaderDiv;
+      }
+    </script>
+  </body>
+</html>
